@@ -16,8 +16,8 @@ K = [(rhoA * g * L^2)/2 0; 0 EA/L];
 C = alpha_1 * M + alpha_2 * K;
 R = [0 ; 0];
 
-u0 = [-L/5 ; 0]; %initial displacement
-v0 = [0 ; sqrt(g/(6*L))]; %initial velocity
+u0 = [0 ;-L/5]; %initial displacement
+v0 = [sqrt(g/(6*L)) ; 0]; %initial velocity
 a0 = M \ (R - C*v0 - K*u0); % initial acceleration
 
 %Chung and Hulbert (1993)
