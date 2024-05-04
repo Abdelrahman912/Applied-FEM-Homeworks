@@ -10,6 +10,9 @@ begin
 	Pkg.activate(".")
 end
 
+# ╔═╡ c5bf3248-2ff1-4257-ba34-8b322b667abb
+using LinearAlgebra
+
 # ╔═╡ 6075d462-d1ff-4b30-9de8-2f7a1eb9ecdf
 md"""#### Task 1:
 1.1. From small amplitude vibrations assumption: $sin(θ) ≈ θ$. \
@@ -181,41 +184,120 @@ $\begin{align}
 
 """
 
+# ╔═╡ 45b7da6f-7b81-452c-8274-fa797698d35f
+struct DynamicResponse
+	u::Matrix{Float64}
+	ud::Matrix{Float64}
+	udd::Matrix{Float64}
+end
+
+# ╔═╡ b1057602-76fe-469c-b382-05c65fb14e60
+struct Error
+	e_abs::Vector{Float64}
+	η::Vector{Float64}
+	e_cum::Vector{Float64}
+end
+
 # ╔═╡ 3cea61f0-bc04-4092-8e3b-7803932865d5
-begin
-	# Initial conditions
-	u_o = [0 , - L /5 ]
+function generalized_alpha(tf, α₁, α₂, ρ_∞)
+	# calculate damping
+	C = α₁*M + α₂ * K
+	
+	# Initial conditions 
+	u_o = [0 , - L /5 ] 
 	ud_o = [sqrt(g/(6*L)),0]
+	udd_o = inv(M) * (R - C * ud_o - K * u_o)
+
+	# Chung and Hulbert (1993)
+	α_m = (2*ρ_∞ - 1)/(ρ_∞ + 1)
+	α_f = (ρ_∞)/(ρ_∞+1)
+	β = 0.25 * (1 - α_m + α_f)^2
+	γ = 0.5 - α_m + α_f
+
+	K_eff = M * ((1-α_m)/(β*Δt^2)) + C * (γ * (1 - α_f))/(β*Δt) + K * (1 - α_f)
+
+	# create time interval range to loop over later
+	t = 0:Δt:tf
+
+	# define our respone containers
+	n = length(t)
+	u = zeros(2,n)
+	ud = zeros(2,n)
+	udd = zeros(2,n)
+
+	# set initial conditions in our response containers
+	u[:,1] = u_o
+	ud[:,1] = ud_o
+	udd[:,1] = udd_o
+
+	# define the containers for errors
+	e_abs = zeros(n) # absolute error
+	η = zeros(n) # relative error
+	e_cum = zeros(n) # cummulative error
+	for i = 1:n-1
+
+		r_eff = -K * α_f * u[:,i] + 
+				C * (((γ * (1-α_f))/(β*Δt)) * u[:,i] + ((γ - γ*α_f - β)/(β)) * ud[:,i] + (((γ-2*β)*(1-α_f))/(2*β)) * Δt*udd[:,i]) +
+				M * (((1-α_m)/(β*Δt^2))*u[:,i] + ((1-α_m)/(β*Δt))* ud[:,i] + ((1-α_m - 2 *β)/(2*β)) * udd[:,i])
+
+		# solve for u.
+		u[:,i+1] = K_eff \ r_eff
+
+		# update velocity and acceleration
+		ud[:,i+1] = ((γ)/(β*Δt)) * (u[:,i+1] - u[:,i]) - ((γ - β)/(β))*ud[:,i] - ((γ - 2*β)/(2*β)) * Δt * udd[:,i]
+
+		udd[:,i+1] = (1/(β*Δt^2))*(u[:,i+1] - u[:,i]) - (1/(β*Δt)) * ud[:,i] - ((1-2*β)/(2*β)) * udd[:,i]
+
+		# calculate errors 
+			e_abs[i+1] = norm(((6*β - 1)/(6))*(udd[:,i+1] - udd[:,i]) * Δt^2)
+		η[i+1] = e_abs[i+1] / norm(u[i+1] - u[i])
+		e_cum[i+1] = sum(e_abs)
+	end
+
+	(response = DynamicResponse(u,ud,udd), errors = Error(e_abs,η,e_cum))
 end
 
 # ╔═╡ 9d7e83e5-4d75-4d96-913f-a656d9866735
-md"""
-!!! note
-	Test.
-"""
+generalized_alpha(5.0, 1.0, 0.0, 1.0)
+
+# ╔═╡ e0ced7bc-baae-4c15-8b6e-9e50be04ced9
+isbitstype(Response)
+
+# ╔═╡ f27a727f-f80c-4dd2-bdef-63c7f3ca587f
+b = [1 ,2 ]
+
+# ╔═╡ 2a801b3c-49a3-4aa7-be75-452711c4d4a0
+norm(b)
 
 # ╔═╡ 20193589-4189-4347-ac5d-0e4370152ce6
+inv(M)
 
+# ╔═╡ 7cb8658f-9a03-4807-8e18-3775b3f675aa
+inv(M)*b
 
 # ╔═╡ 4ac90089-eee4-4ce3-a2e8-0152877f4414
-md"""
+a = [1 2 ; 3 4]
 
-$\begin{align}
--\bigl(e^{-t} (\cos t + \sin t)\bigr)^2 \\
-+ \bigl(e^{-t} (\cos t + \sin t)\bigr)^2 \\
-+ \bigl(-e^{-t}\bigr)^2
-
-\end{align}$
-"""
+# ╔═╡ 9fa61850-7570-48b2-863b-1f6cca64b684
+a[:,1] + 
+a[:,2]
 
 # ╔═╡ Cell order:
 # ╠═e3dbdee8-7f62-4301-b848-6393954121a8
+# ╠═c5bf3248-2ff1-4257-ba34-8b322b667abb
 # ╟─6075d462-d1ff-4b30-9de8-2f7a1eb9ecdf
 # ╠═774a153f-df2e-4fd0-a8db-ba370f8057c1
 # ╠═0b86fb31-1e75-4c0d-8704-a95ec5318218
 # ╠═380f1415-27af-4b21-a93e-9fbabdd27a30
-# ╠═67cf6c46-7e1e-4f20-bba7-d6c2b9d53cf0
+# ╟─67cf6c46-7e1e-4f20-bba7-d6c2b9d53cf0
+# ╠═45b7da6f-7b81-452c-8274-fa797698d35f
+# ╠═b1057602-76fe-469c-b382-05c65fb14e60
 # ╠═3cea61f0-bc04-4092-8e3b-7803932865d5
 # ╠═9d7e83e5-4d75-4d96-913f-a656d9866735
+# ╠═e0ced7bc-baae-4c15-8b6e-9e50be04ced9
+# ╠═f27a727f-f80c-4dd2-bdef-63c7f3ca587f
+# ╠═2a801b3c-49a3-4aa7-be75-452711c4d4a0
 # ╠═20193589-4189-4347-ac5d-0e4370152ce6
+# ╠═7cb8658f-9a03-4807-8e18-3775b3f675aa
 # ╠═4ac90089-eee4-4ce3-a2e8-0152877f4414
+# ╠═9fa61850-7570-48b2-863b-1f6cca64b684
