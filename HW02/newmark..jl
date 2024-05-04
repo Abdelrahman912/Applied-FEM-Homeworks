@@ -45,12 +45,12 @@ u
 \end{align}$
 
 
-1.3. For given $α_1$ & $α_2$, one can calculate the Rayleigh damping matrix $\boldsymbol{M}$ from the following equation:
+1.3. for given $α_1$ & $α_2$, one can calculate the Rayleigh damping matrix $\boldsymbol{M}$ from the following equation:
 $\begin{align}
 \boldsymbol{C} = α_1 \boldsymbol{M} + α_2 \boldsymbol{K}
 \end{align}$
 
-1.4. Finally, the semi-discrete equation of motion will be as follows
+1.4. 
 """
 
 # ╔═╡ 9d7e83e5-4d75-4d96-913f-a656d9866735
