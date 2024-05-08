@@ -191,18 +191,18 @@ $\begin{align}
 
 # ╔═╡ 45b7da6f-7b81-452c-8274-fa797698d35f
 struct DynamicResponse
-	u::Matrix{Float64}
-	ud::Matrix{Float64}
-	udd::Matrix{Float64}
-	t::Vector{Float64}
+	u::Matrix{Float64} # displacement
+	ud::Matrix{Float64} # velocity
+	udd::Matrix{Float64} # acceleration
+	t::Vector{Float64} # time steps
 end
 
 # ╔═╡ b1057602-76fe-469c-b382-05c65fb14e60
 struct Error
-	e_abs::Vector{Float64}
-	η::Vector{Float64}
-	e_cum::Vector{Float64}
-	t::Vector{Float64}
+	e_abs::Vector{Float64} # absolute error (Zienkiewicz and Xie)
+	η::Vector{Float64} # relative error
+	e_cum::Vector{Float64} # cummulative error
+	t::Vector{Float64} # time steps 
 end
 
 # ╔═╡ 3cea61f0-bc04-4092-8e3b-7803932865d5
@@ -297,7 +297,7 @@ begin
 end
 
 # ╔═╡ 5309e3a3-ab35-4cc4-88cc-119813ab62a5
-md"""#### Task3 (Explanation):
+md"""#### Task 3 (Explanation):
 ##### Observtion:
 In *Task 3a* **both** degree of freedoms (i.e. $u$ & $θ$) are being damped with time, whereas in *Task 3b* **only $u$** is being damped with time and the amplitude of $\theta$ is constant through time.
 
@@ -307,6 +307,66 @@ The reason behind such observation is that $α_1$ & $α_2$ are called **physical
 However, $ρ_∞$ is called **numerical damping parameter** due to the numerical error arised from this parameter that leads to damping. Additionally, it only damps degree of freedoms that has higher frequencies and this obvious in *task 3b* which has **no physical** damping but has **numerical** damping. \
 Finaly, in *task 3a* there is no numerical damping because, $γ = \frac{1}{2} → ρ_∞ = 1$ (slides pg. 59) and numerical damping only occurs if $γ > \frac{1}{2} → ρ_∞ < 1$
 """
+
+# ╔═╡ e3ad5cc3-4843-4d80-a0ba-99278ca335be
+md"""#### Task 4 (Error Calculation):
+
+!!! note
+	Error calculation is already implemented in `generalized_alpha`. Accordingly, in this section, I will only show the equations that were used, some notes about regarding the implementation and the error graphs as well.
+
+##### 4.1. Zienkiewicz and Xie (i.e. absolute error):
+$\begin{align}
+\boldsymbol{e}^{ZX} = \frac{6β-1}{6} (\ddot{\boldsymbol{u}}_{n+1} - \ddot{\boldsymbol{u}}_n)Δt^2 → \text{\small{(slides pg. 90)}}
+\end{align}$
+
+##### 4.2. Relative error:
+
+$\begin{align}
+η = \frac{||\boldsymbol{e}||}{||\boldsymbol{u}_{n+1} - \boldsymbol{u}_n||} → \text{\small{(slides pg. 91)}}
+\end{align}$
+
+##### 4.3. Cummulative error:
+
+$\begin{align}
+
+e_{cm} = \sum_{i=1}^{n}{||\boldsymbol{e}||}
+
+\end{align}$
+
+where $n$ is the index of the current time step.
+
+
+"""
+
+# ╔═╡ 590a6c46-c9ee-4976-afdb-e873bd0af809
+begin
+	plot(err_a.t,err_a.e_abs,title="Absolute Error (Task 3a)",xlabel=L"t",ylabel=L"||e||",label=L"$||e||$")
+end
+
+# ╔═╡ f81d3f7a-3543-4cda-baad-198410bb9aef
+begin
+	plot(err_a.t,err_a.η,title="Relative Error (Task 3a)",xlabel=L"t",ylabel=L"η",label=L"$\eta$")
+end
+
+# ╔═╡ 31592de4-c0f4-40b8-a940-06a1c83053c2
+begin
+	plot(err_a.t,err_a.e_cum,title="Cumulative Error (Task 3a)",xlabel=L"t",ylabel=L"e_{cm}",label=L"$e_{cm}$")
+end
+
+# ╔═╡ 8b058921-b41b-470b-b45a-35af6149428f
+begin
+	plot(err_b.t,err_b.e_abs,title="Absolute Error (Task 3b)",xlabel=L"t",ylabel=L"||e||",label=L"$||e||$")
+end
+
+# ╔═╡ 85eda22b-ac0f-49ae-aaf2-2aca6a6e7070
+begin
+	plot(err_b.t,err_b.η,title="Relative Error (Task 3b)",xlabel=L"t",ylabel=L"η",label=L"$\eta$")
+end
+
+# ╔═╡ eb4a70b8-e07f-4311-8d5c-b1bb879ba726
+begin
+	plot(err_b.t,err_b.e_cum,title="Cumulative Error (Task 3b)",xlabel=L"t",ylabel=L"e_{cm}",label=L"$e_{cm}$")
+end
 
 # ╔═╡ Cell order:
 # ╠═e3dbdee8-7f62-4301-b848-6393954121a8
@@ -327,3 +387,10 @@ Finaly, in *task 3a* there is no numerical damping because, $γ = \frac{1}{2} �
 # ╠═7cb8658f-9a03-4807-8e18-3775b3f675aa
 # ╟─4ac90089-eee4-4ce3-a2e8-0152877f4414
 # ╠═5309e3a3-ab35-4cc4-88cc-119813ab62a5
+# ╟─e3ad5cc3-4843-4d80-a0ba-99278ca335be
+# ╠═590a6c46-c9ee-4976-afdb-e873bd0af809
+# ╠═f81d3f7a-3543-4cda-baad-198410bb9aef
+# ╠═31592de4-c0f4-40b8-a940-06a1c83053c2
+# ╠═8b058921-b41b-470b-b45a-35af6149428f
+# ╠═85eda22b-ac0f-49ae-aaf2-2aca6a6e7070
+# ╠═eb4a70b8-e07f-4311-8d5c-b1bb879ba726
