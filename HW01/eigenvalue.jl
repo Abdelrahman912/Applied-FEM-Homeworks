@@ -124,32 +124,392 @@ $\begin{gather}
 Putting both equations in matrix form will yield:
 
 $\begin{gather}
+
+\underbrace{
 \begin{bmatrix}
 2m+M & 0\\
 0 & 2m+M
-\end{bmatrix} ⋅
+\end{bmatrix}}_{\boldsymbol{M}} ⋅
 
+\underbrace{
 \begin{bmatrix}
 \ddot{θ}_1 \\
 \ddot{θ}_2
-\end{bmatrix} +
+\end{bmatrix}}_{\ddot{\boldsymbol{u}}} +
 
+\underbrace{
 \begin{bmatrix}
 \frac{2m+M}{L} + k & -k \\
 -k & \frac{2m+M}{L} + k
-\end{bmatrix} ⋅ 
+\end{bmatrix}}_{\boldsymbol{K}} ⋅ 
 
+\underbrace{
 \begin{bmatrix}
 θ_1 \\
 θ_2
+\end{bmatrix}}_{\boldsymbol{u}} = 
+\begin{bmatrix}
+0 \\
+0
+\end{bmatrix} \\
+
+∴ \boldsymbol{M} ⋅ \ddot{\boldsymbol{u}} + \boldsymbol{K} ⋅ \boldsymbol{u} = \boldsymbol{0}
+
+\end{gather}$
+
+"""
+
+# ╔═╡ 262235a3-4b6e-492c-8a53-8a8d6651996a
+md"""#### Data given for the upcoming tasks:
+
+$$\begin{gather}
+m = 25 \space Kg \\
+M = 700 \space Kg \\
+k = 2 × 10^2 N/m \\
+l = 1 \space m \\
+g = 9.8 \space m/s^2
+\end{gather}$$"""
+
+# ╔═╡ 42337a00-57b7-45ab-a823-ce1af16125ef
+md""" #### Task 4: Eigenvalues and eigenvectors using characteristic polynomial of the system:
+
+$\begin{gather} 
+\boldsymbol{M} ⋅ \ddot{\boldsymbol{u}} + \boldsymbol{K} ⋅ \boldsymbol{u} = \boldsymbol{0} → \text{(eq. 1)} \\
+
+\boldsymbol{u} = \boldsymbol{ϕ} f(t) → \text{(eq. 2)} \\
+
+\ddot{\boldsymbol{u}} = - ω^2  \boldsymbol{ϕ} f(t) → \text{(eq. 3)} \\
+
+\end{gather}$
+
+where $ω$(angular frequency)$= \sqrt{λ}$, $T$(time period)$= \frac{2π}{ω}$. \
+By inserting eq. 2 & eq. 3 in eq. 1 will yield:
+
+$\begin{gather}
+\boldsymbol{K} ⋅ \boldsymbol{ϕ} = \underbrace{ω^2}_{λ} \boldsymbol{M} ⋅ \boldsymbol{ϕ} → (\boldsymbol{K} - λ \boldsymbol{M}) ⋅ \boldsymbol{ϕ} = \boldsymbol{0} → \text{(eq. 4)}
+
+\end{gather}$
+for eq. 4 to be valid for nonzero $\boldsymbol{ϕ}$, then $(\boldsymbol{K} - λ \boldsymbol{M})$ has to be singular matrix $\iff \det(\boldsymbol{K} - λ \boldsymbol{M}) \overset{!}{=} 0$.
+
+$\begin{gather}
+\boldsymbol{K} - λ \boldsymbol{M} = 
+\begin{bmatrix}
+3750 & -3000 \\
+-3000 & 3750
+\end{bmatrix} - 
+λ\begin{bmatrix}
+750 & 0\\
+0 & 750
+\end{bmatrix} = 
+\begin{bmatrix}
+3750 - 750λ & -3000 \\
+-3000 & 3750 - 750λ
+\end{bmatrix} \\ 
+⇒ \det \left(  
+
+\begin{bmatrix}
+3750 - 750λ & -3000 \\
+-3000 & 3750 - 750λ
+\end{bmatrix} \\ 
+
+\right) = 0 \\
+
+⇒ (3750 - 750λ)^2 - 9 × 10^6 = 0 \\
+
+⇒ 562500λ^2 - 5625000λ + 5062500 = 0 \\
+
+⇒ λ^2 - 10λ + 9 = 0
+\end{gather}$
+
+solving the previous polynomial will yield the following eigenvalues:
+
+$\begin{gather}
+λ_1 = 9 \\
+λ_2 = 1
+\end{gather}$
+
+##### Eigenvector for $λ_1$:
+
+$\begin{gather}
+\begin{bmatrix}
+3750 - 750λ_1 & -3000 \\
+-3000 & 3750 - 750λ_1
+\end{bmatrix} ⋅ 
+
+\begin{bmatrix}
+ϕ_{11} \\
+ϕ_{12}
 \end{bmatrix} = 
 \begin{bmatrix}
 0 \\
 0
+\end{bmatrix} \\
+
+⇒ \begin{bmatrix}
+-3000 & -3000 \\
+-3000 & -3000
+\end{bmatrix} ⋅ 
+
+\begin{bmatrix}
+ϕ_{11} \\
+ϕ_{12}
+\end{bmatrix} = 
+\begin{bmatrix}
+0 \\
+0
+\end{bmatrix} \\
+
+\end{gather}$
+
+assume $ϕ_{11} = 1$, then $ϕ_{12} = -1$.
+
+$\begin{gather}
+
+\bar{\boldsymbol{ϕ}}_1 = 
+\begin{bmatrix}
+1 \\
+-1
+\end{bmatrix} ⇒ \boldsymbol{ϕ}_1 = \frac{\bar{\boldsymbol{ϕ}}_1}{||\bar{\boldsymbol{ϕ}}_1||}
+ = 
+\frac{1}{\sqrt{2}}
+\begin{bmatrix}
+1 \\
+-1
 \end{bmatrix}
 
 \end{gather}$
 
+##### Eigenvector for $λ_2$:
+
+$\begin{gather}
+\begin{bmatrix}
+3750 - 750λ_2 & -3000 \\
+-3000 & 3750 - 750λ_2
+\end{bmatrix} ⋅ 
+
+\begin{bmatrix}
+ϕ_{21} \\
+ϕ_{22}
+\end{bmatrix} = 
+\begin{bmatrix}
+0 \\
+0
+\end{bmatrix} \\
+
+⇒ \begin{bmatrix}
+3000 & -3000 \\
+-3000 & 3000
+\end{bmatrix} ⋅ 
+
+\begin{bmatrix}
+ϕ_{21} \\
+ϕ_{22}
+\end{bmatrix} = 
+\begin{bmatrix}
+0 \\
+0
+\end{bmatrix} \\
+
+\end{gather}$
+
+assume $ϕ_{21} = 1$, then $ϕ_{22} = 1$.
+
+$\begin{gather}
+
+\bar{\boldsymbol{ϕ}}_2 = 
+\begin{bmatrix}
+1 \\
+1
+\end{bmatrix} ⇒ \boldsymbol{ϕ}_2 = \frac{\bar{\boldsymbol{ϕ}}_2}{||\bar{\boldsymbol{ϕ}}_2||}
+ = 
+\frac{1}{\sqrt{2}}
+\begin{bmatrix}
+1 \\
+1
+\end{bmatrix}
+
+\end{gather}$
+
+
+
+
+"""
+
+# ╔═╡ 3e1f29dd-8796-4b5a-9bd9-afcc1a0e8923
+md""" #### Task 5:
+
+since $\boldsymbol{ϕ}_1 ⋅ \boldsymbol{ϕ}_2 =0$, then the eigenvectors are orthogonal and the reason behind that is that $\boldsymbol{K}$ is symmetric matrix and from linear algebra we know that for any symmetric matrix of *dim = n*, it has *n* real eigenvalues and its eigenvectors are orthogonal.
+
+"""
+
+# ╔═╡ e121927d-2e5e-469d-aba9-3bd104fca5a2
+md"""#### Task 6: Forward iteration and inverse iteration implementation:
+
+##### 6.1. Forward iteration:
+
+"""
+
+# ╔═╡ f4415b2d-4278-4932-9c62-792420b90f0d
+begin
+    m =25.0 
+	M_ = 700.0
+	k = 3e3
+	L = 1.0
+	g = 9.8
+	(;m,M_,k,L,g)
+end
+
+# ╔═╡ 32ecc5e7-86b0-4655-84ca-646fbf9e2fac
+struct Eigen{Eigenvalue<:Real,Eigenvector<:Vector}
+	λ::Eigenvalue
+	ϕ::Eigenvector
+end
+
+# ╔═╡ b8d722d3-3074-4888-b0a8-4ea99d8f9e00
+function forward_iter(K,M,x,tol)
+	# K → stiffness matrix
+	# M → mass matrix
+	# x → initial guess
+	# tol → tolerence
+
+	y = K*x
+
+	err = tol * 2 # any number above the tolerence
+	ρₙ₁ = 0.0
+	ρₙ = 0.0
+	n = 0 # counter to count number of loops before convergence
+	
+	while err ≥ tol
+		n +=1
+		xbar = inv(M) * y
+		ybar = K*xbar
+		ρₙ = ρₙ₁
+		ρₙ₁ = (xbar'*ybar)/(xbar'*y)
+		err = abs(ρₙ₁ - ρₙ )/ ρₙ₁
+		y = ybar/sqrt(xbar'*y)
+	 end
+
+	λ = ρₙ₁
+	ϕ = inv(K) * y
+	ϕ = ϕ/norm(ϕ)
+
+	eigen = Eigen(λ,ϕ)
+	num_iter = n
+	(;eigen,num_iter)
+end
+
+# ╔═╡ e3fae7af-4465-4ce7-b104-222442ca4d51
+md"""##### 6.2. Inverse iteration:
+
+"""
+
+# ╔═╡ 06b66d08-65cd-4845-b4a5-4f126edd5536
+function inverse_iter(K,M,x,tol)
+	# K → stiffness matrix
+	# M → mass matrix
+	# x → initial guess
+	# tol → tolerence
+
+	y = M*x
+
+	err = tol * 2 # any number above the tolerence
+	ρₙ₁ = 0.0
+	ρₙ = 0.0
+	n = 0 # counter to count number of loops before convergence
+
+	while err ≥ tol
+		n +=1
+		xbar = inv(K) * y
+		ybar = M*xbar
+		ρₙ = ρₙ₁
+		ρₙ₁ = (xbar'*y)/(xbar'*ybar)
+		err = abs(ρₙ₁ - ρₙ )/ ρₙ₁
+		y = ybar/sqrt(xbar'*ybar)
+	 end
+
+	λ = ρₙ₁
+	ϕ = inv(M) * y
+	ϕ = ϕ/norm(ϕ)
+
+	eigen = Eigen(λ,ϕ)
+	num_iter = n
+	(;eigen,num_iter)
+
+end
+
+# ╔═╡ 97f6ebfa-80ae-4998-babe-52232179548e
+begin
+	K = [(2m + M_)/L + k -k; -k (2m + M_)/L + k]
+	M = [2m+M_ 0;0 2m+M_]
+	TOL = 1e-6
+	(;K,M,TOL)
+end
+
+# ╔═╡ 5f2879e7-156b-4e06-b628-470d2d590fbe
+md""" #### Task 7:
+
+$\begin{gather}
+\text{initial guess: } \boldsymbol{x}_1 = 
+\begin{bmatrix}
+1 \\
+0
+\end{bmatrix}
+\end{gather}$
+
+"""
+
+# ╔═╡ 43fd6c87-8f01-4268-9f36-0c53a04c3dfc
+x₁ = [1;0]
+
+# ╔═╡ 88d0188b-fec3-4ba7-a36c-cc366dff7171
+md"""##### 7.1. Solve using forward itertion:
+"""
+
+# ╔═╡ 21c95bd5-4a8a-4d84-a878-4a33306d0fc2
+forward_iter(K,M,x₁,TOL)
+
+# ╔═╡ 0776dd77-6667-4cd9-9863-300bb77f42d7
+md"""
+!!! note
+	The returned eigenvalue from the **forward iteration** method is *9* which 		is the **largest**. Moreover, the algorithim **converged after *5* iterations**.
+"""
+
+# ╔═╡ 3c4b0ebc-2d83-41d7-ab4e-274173df0ec4
+md""" ##### 7.2. Solve using inverse iteration:
+
+"""
+
+# ╔═╡ b8bac588-297d-4897-a85d-fd40b514f347
+inverse_iter(K,M,x₁,TOL)
+
+# ╔═╡ 31986601-41b7-40be-b906-3cd7a5303058
+md"""
+!!! note
+	The returned eigenvalue from the **inverse iteration** method is *1* which 		is the **smallest**. Moreover, the algorithim **converged after *5* iterations**.
+"""
+
+# ╔═╡ f58feb02-960f-4f2c-8dcd-0c68f274ced0
+md""" #### Task 8: Check forward iteration convergence:
+
+$\begin{gather}
+\text{initial guess: } \boldsymbol{x}_1 = 
+\begin{bmatrix}
+1 \\
+1
+\end{bmatrix}
+\end{gather}$
+
+"""
+
+# ╔═╡ 07a6086e-aaf2-4f94-a1fc-fc43f93abc90
+x₂ = [1;1]
+
+# ╔═╡ 2ba670a3-df79-444d-99b3-70a1b19fd517
+forward_iter(K,M,x₂,TOL)
+
+# ╔═╡ 85cd2d79-c7b7-458e-a71a-69b2828c00a4
+md""" ##### 8.1. Explanation:
+As observed from the previous result that *forward iteration* **converged to the smallest eigenvlue** rather than the largest and the reason is the **initial guess** $[1  \; \; 1]^T$ which is **orthogonal** to the eigenvector associated with the largest eigenvalue, accordingly, *forward iteration* will never converge to the largest eigenvalue anymore.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1269,12 +1629,34 @@ version = "17.4.0+2"
 """
 
 # ╔═╡ Cell order:
-# ╠═fbeafba6-0f8b-427f-b808-386fa5a10256
+# ╟─fbeafba6-0f8b-427f-b808-386fa5a10256
 # ╠═60cc9a60-4870-402c-82b2-f5c290f5e1c8
 # ╟─9da972b8-dc6e-497c-b7e3-91a01115029d
 # ╟─bc561f85-1798-44b1-92c9-1416091e7027
 # ╟─1f77d2c5-b995-4c14-abdd-d8654857ec30
 # ╟─db1afce8-dbc9-437e-9521-2a1304db9aa1
 # ╟─c2ad656a-b88d-4eca-afad-a2c684ba169d
+# ╟─262235a3-4b6e-492c-8a53-8a8d6651996a
+# ╟─42337a00-57b7-45ab-a823-ce1af16125ef
+# ╟─3e1f29dd-8796-4b5a-9bd9-afcc1a0e8923
+# ╟─e121927d-2e5e-469d-aba9-3bd104fca5a2
+# ╠═f4415b2d-4278-4932-9c62-792420b90f0d
+# ╠═32ecc5e7-86b0-4655-84ca-646fbf9e2fac
+# ╠═b8d722d3-3074-4888-b0a8-4ea99d8f9e00
+# ╟─e3fae7af-4465-4ce7-b104-222442ca4d51
+# ╠═06b66d08-65cd-4845-b4a5-4f126edd5536
+# ╠═97f6ebfa-80ae-4998-babe-52232179548e
+# ╟─5f2879e7-156b-4e06-b628-470d2d590fbe
+# ╠═43fd6c87-8f01-4268-9f36-0c53a04c3dfc
+# ╟─88d0188b-fec3-4ba7-a36c-cc366dff7171
+# ╠═21c95bd5-4a8a-4d84-a878-4a33306d0fc2
+# ╟─0776dd77-6667-4cd9-9863-300bb77f42d7
+# ╟─3c4b0ebc-2d83-41d7-ab4e-274173df0ec4
+# ╠═b8bac588-297d-4897-a85d-fd40b514f347
+# ╟─31986601-41b7-40be-b906-3cd7a5303058
+# ╟─f58feb02-960f-4f2c-8dcd-0c68f274ced0
+# ╠═07a6086e-aaf2-4f94-a1fc-fc43f93abc90
+# ╠═2ba670a3-df79-444d-99b3-70a1b19fd517
+# ╟─85cd2d79-c7b7-458e-a71a-69b2828c00a4
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
