@@ -18,6 +18,14 @@ begin
 	using LaTeXStrings
 end
 
+# ╔═╡ 8f516750-0f93-4318-ae79-c361c40fce31
+md"""## Homework 2: Generalized-Alpha method
+
+##### Name: Abdelrahman Fathy Abdelhaleem Aly Abdelrahman
+##### Matr.-Nr.: 108023251500 
+
+"""
+
 # ╔═╡ 6075d462-d1ff-4b30-9de8-2f7a1eb9ecdf
 md"""#### Task 1:
 1.1. From small amplitude vibrations assumption: $sin(θ) ≈ θ$. \
@@ -568,6 +576,7 @@ md""" ##### Number of steps:
 (adapt = length(ad_time.steps),t3a = length(time_a.steps) )
 
 # ╔═╡ Cell order:
+# ╟─8f516750-0f93-4318-ae79-c361c40fce31
 # ╠═e3dbdee8-7f62-4301-b848-6393954121a8
 # ╠═c5bf3248-2ff1-4257-ba34-8b322b667abb
 # ╟─6075d462-d1ff-4b30-9de8-2f7a1eb9ecdf
@@ -597,7 +606,7 @@ md""" ##### Number of steps:
 # ╟─1286dcc1-d323-4a5f-8dbc-f874c2ad5377
 # ╠═205bd7ff-ab41-4ce2-bec8-6bfa411f21d0
 # ╠═e070700c-5bb9-4c62-9fe8-ac7b4eed7284
-# ╠═0fdf106a-c40d-420d-a848-bf727fb49794
+# ╟─0fdf106a-c40d-420d-a848-bf727fb49794
 # ╠═6c54aec1-0c49-4f3f-979c-7fbf964ee22f
 # ╠═a8a6e77e-1d13-4214-8927-0c6f1d1af222
 # ╠═a563b1e3-3013-4059-a33c-90c97f5b07fc
