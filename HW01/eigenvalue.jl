@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -509,7 +509,7 @@ forward_iter(K,M,x₂,TOL)
 
 # ╔═╡ 85cd2d79-c7b7-458e-a71a-69b2828c00a4
 md""" ##### 8.1. Explanation:
-As observed from the previous result that *forward iteration* **converged to the smallest eigenvlue** rather than the largest and the reason is the **initial guess** $[1  \; \; 1]^T$ which is **orthogonal** to the eigenvector associated with the largest eigenvalue, accordingly, *forward iteration* will never converge to the largest eigenvalue anymore.
+As observed from the previous result that *forward iteration* **converged to the smallest eigenvlue** rather than the largest and the reason is; the **initial guess** $[1  \; \; 1]^T$ is **orthogonal** to the eigenvector associated with the largest eigenvalue, accordingly, *forward iteration* will never converge to the largest eigenvalue anymore.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001

@@ -28,3 +28,9 @@ lambda % 1 -> (smallest eigen value)
 phi % [0.7071; 0.7071]
 n % 5
 
+% Task 8:
+x2 = [1;1]; % initial guess for Task 8.
+[lambda, phi, n ]= forward_iter(K,M,x2,TOL);
+lambda % 1 -> (smallest eigen value)
+phi % [0.7071; 0.7071]
+n % 2
