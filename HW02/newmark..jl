@@ -40,16 +40,16 @@ $\begin{align}
 with $\boldsymbol{u}$ & $\ddot{\boldsymbol{u}}$ are vectors, and there components are as follows:
 
 $\begin{align}
-\boldsymbol{u} = 
-\begin{bmatrix}
-θ \\ 
-u
-\end{bmatrix} \space , \space
-
 \ddot{\boldsymbol{u}} = 
 \begin{bmatrix}
 \ddot{θ} \\
 \ddot{u}
+\end{bmatrix} \space , \space
+
+\boldsymbol{u} = 
+\begin{bmatrix}
+θ \\ 
+u
 \end{bmatrix}
 \end{align}$
 
@@ -85,6 +85,17 @@ $\begin{align}
 	Semi-discrete means that the equation is discrete in space only, but 		continous in time.
 """
 
+# ╔═╡ a489ace2-1838-4558-b286-ccce61993f56
+md""" #### Data inputs:
+$\begin{gather}
+Δt = 0.01 \; s \\
+L = 1.0 \; m \\
+ρA = 1.0 \; kg/m \\
+EA = 500.0 \; N \\
+g = 9.8 \; m/s^2
+\end{gather}$
+"""
+
 # ╔═╡ 774a153f-df2e-4fd0-a8db-ba370f8057c1
 begin
 	# Data inputs
@@ -96,11 +107,19 @@ end
 
 # ╔═╡ 0b86fb31-1e75-4c0d-8704-a95ec5318218
 begin
-	# Global variables
+	# Linear Momentum.
 	M = [(ρA*L^3)/3 0; 0  (ρA*L)/3]
 	K = [(ρA*g*L^2)/2 0; 0 EA/L]
 	R = [0 , 0]
-	(M = M, K=K)
+	(;M,K,R)
+end
+
+# ╔═╡ 61b9a2be-b4b0-4202-b74a-a447148d98ef
+begin
+	# Initial Conditions
+	uₒ = [0 ; -L/5] # initial displacement
+	vₒ = [sqrt(g/6L) ; 0] # initial velocity
+	(;uₒ,vₒ)
 end
 
 # ╔═╡ 380f1415-27af-4b21-a93e-9fbabdd27a30
@@ -189,6 +208,54 @@ $\begin{align}
 
 """
 
+# ╔═╡ 8dbfb59a-e58e-4a30-8b1d-a0d9df1dd462
+md"""
+!!! note
+	The following structs are used to define the **input parameters** for the *Generalized-Alpha* method.
+"""
+
+# ╔═╡ 29053a71-d588-45d7-863f-88a7211eaff1
+struct LinearMomentum
+	M::Matrix{Float64} # mass matrix
+	K::Matrix{Float64} # stiffness matrix
+	R::Vector{Float64} # load vector (i.e. right hand side)
+end
+
+# ╔═╡ abda6326-b895-49fc-96d8-24130cbfb1bf
+struct InitialConditions
+	uₒ::Vector{Float64} # initial displacement
+	vₒ::Vector{Float64} # initial velocity
+end
+
+# ╔═╡ c008a1a9-f37a-4a1f-af09-a2e09a27965b
+# define abstract supertype for damping that will be inherited by 
+# physcial (i.e. α₁, α₂) and numerical damping (i.e. ρ_∞)
+abstract type DampingParameters end
+
+# ╔═╡ c76c8c38-cbba-411d-ae96-6a491ed430fa
+struct PhysicalDamping <: DampingParameters
+	α₁::Float64
+	α₂::Float64
+end
+
+# ╔═╡ 2686c72c-eca5-4d91-8245-06070e865f5b
+struct NumericalDamping <: DampingParameters
+	ρ_∞::Float64
+end
+
+# ╔═╡ 30f8aa72-a5a3-46a4-9900-03a771998c58
+struct RunTime
+	tf::Float64 # amount of time we solve our system for
+	Δt::Float64 # fixed time step or initial time step for the adaptive method.
+end
+
+# ╔═╡ 6f62ec53-9efd-498e-9a3b-ac11a51e9af1
+md"""
+!!! note
+	The following structs are used to define the **output parameters** for the *Generalized-Alpha* method.
+
+"""
+
 # ╔═╡ 45b7da6f-7b81-452c-8274-fa797698d35f
 struct DynamicResponse
 	u::Matrix{Float64} # displacement
@@ -204,30 +271,39 @@ struct Error
 end
 
 # ╔═╡ 7b31aad9-d4f3-40d7-a7c7-18d25cb19139
-struct TimeData
-	times::Vector{Float64}
-	steps::Vector{Float64}
+struct TimeEvolution
+	times::Vector{Float64} # current time vector.
+	steps::Vector{Float64} # Δt vector
 end
 
 # ╔═╡ 3cea61f0-bc04-4092-8e3b-7803932865d5
-function generalized_alpha(tf,Δt, α₁, α₂, ρ_∞)
+function generalized_alpha(moment::LinearMomentum,ic::InitialConditions, time::RunTime, pd::PhysicalDamping,nd::NumericalDamping)
+	
+	M = moment.M # mass matrix
+	K = moment.K # stiffness matrix
+
+	α₁ = pd.α₁
+	α₂ = pd.α₂
+	
 	# calculate damping
 	C = α₁*M + α₂ * K
 	
 	# Initial conditions 
-	u_o = [0 , - L /5 ] 
-	ud_o = [sqrt(g/(6*L)),0]
+	u_o = ic.uₒ
+	ud_o = ic.vₒ
 	udd_o = inv(M) * (R - C * ud_o - K * u_o)
 
 	# Chung and Hulbert (1993)
+	ρ_∞ = nd.ρ_∞
 	α_m = (2*ρ_∞ - 1)/(ρ_∞ + 1)
 	α_f = (ρ_∞)/(ρ_∞+1)
 	β = 0.25 * (1 - α_m + α_f)^2
 	γ = 0.5 - α_m + α_f
 
-	K_eff = M * ((1-α_m)/(β*Δt^2)) + C * (γ * (1 - α_f))/(β*Δt) + K * (1 - α_f)
 
 	# create time interval range to loop over later
+	tf = time.tf
+	Δt = time.Δt
 	t = 0:Δt:tf
 	n = length(t)
 	steps = fill(Δt,n)
@@ -247,6 +323,8 @@ function generalized_alpha(tf,Δt, α₁, α₂, ρ_∞)
 	e_abs = zeros(n) # absolute error
 	η = zeros(n) # relative error
 	e_cum = zeros(n) # cummulative error
+	
+	K_eff = M * ((1-α_m)/(β*Δt^2)) + C * (γ * (1 - α_f))/(β*Δt) + K * (1 - α_f)
 	for i = 1:n-1
 
 		r_eff = -K * α_f * u[:,i] + 
@@ -267,19 +345,39 @@ function generalized_alpha(tf,Δt, α₁, α₂, ρ_∞)
 		e_cum[i+1] = sum(e_abs)
 	end
 
-	(response = DynamicResponse(u,ud,udd), errors = Error(e_abs,η,e_cum),time = TimeData(t,steps))
+	(response = DynamicResponse(u,ud,udd), errors = Error(e_abs,η,e_cum),time = TimeEvolution(t,steps))
+	
 end
 
-# ╔═╡ 9d7e83e5-4d75-4d96-913f-a656d9866735
-generalized_alpha(5.0,0.01, 1.0, 0.0, 1.0)
+
+# ╔═╡ e5a45366-2e27-4509-800b-8f279f2c52b3
+md"""#### Task: Solve the system:
+
+"""
+
+# ╔═╡ aeed0ca1-954f-4b04-88d7-0ba1405458d4
+begin
+	# common input parameters for both task 3a & 3b
+	momentum = LinearMomentum(M,K,R) # linear momentum parameters
+	initial_coditions = InitialConditions(uₒ,vₒ) # initial conditions
+	runtime = RunTime(5.0,0.01) 
+	(;momentum,initial_coditions,runtime)
+end
 
 # ╔═╡ e0ced7bc-baae-4c15-8b6e-9e50be04ced9
 md"""#### Task 3a: 
 Given: $t_{final} = 5 \space s, α_1 = 1, α_2 = 0, ρ_∞ = 1.0$ 
 """
 
+# ╔═╡ 56395d02-19fd-4b9e-8f92-6e88aa4428c7
+begin # parameters specific for task 3a.
+	physical_damping_a = PhysicalDamping(1.0,0.0) # (α₁ = 1.0, α₂=0.0)
+	numerical_damping_a = NumericalDamping(1.0) # (ρ_∞ = 1.0)
+	(;physical_damping_a,numerical_damping_a)
+end
+
 # ╔═╡ f27a727f-f80c-4dd2-bdef-63c7f3ca587f
-resp_a , err_a ,time_a= generalized_alpha(5.0,0.01, 1.0, 0.0, 1.0)
+resp_a , err_a ,time_a= generalized_alpha(momentum,initial_coditions,runtime,physical_damping_a,numerical_damping_a)
 
 # ╔═╡ 2a801b3c-49a3-4aa7-be75-452711c4d4a0
 begin
@@ -293,8 +391,15 @@ md"""#### Task 3b:
 Given: $t_{final} = 5 \space s, α_1 = 0, α_2 = 0, ρ_∞ = 0.1$ 
 """
 
+# ╔═╡ 011d1b7c-4535-47ad-a42c-4affa41f4588
+begin # parameters specific for task 3b.
+	physical_damping_b = PhysicalDamping(0.0,0.0) # (α₁ = 0.0, α₂ = 0.0)
+	numerical_damping_b = NumericalDamping(0.1) # (ρ_∞ = 0.1)
+	(;physical_damping_b,numerical_damping_b)
+end
+
 # ╔═╡ 7cb8658f-9a03-4807-8e18-3775b3f675aa
-resp_b , err_b, time_b= generalized_alpha(5.0,0.01, 0.0, 0.0, 0.1)
+resp_b , err_b, time_b= generalized_alpha(momentum,initial_coditions,runtime,physical_damping_b,numerical_damping_b)
 
 # ╔═╡ 4ac90089-eee4-4ce3-a2e8-0152877f4414
 begin
@@ -305,10 +410,10 @@ end
 # ╔═╡ 5309e3a3-ab35-4cc4-88cc-119813ab62a5
 md"""#### Task 3 (Explanation):
 ##### Observtion:
-In *Task 3a* **both** degree of freedoms (i.e. $u$ & $θ$) are being damped with time, whereas in *Task 3b* **only $u$** is being damped with time and the amplitude of $\theta$ is constant through time.
+In *Task 3a* **both** degree of freedoms (i.e. $u$ & $θ$) are being damped with time, whereas in *Task 3b* **only $u$** is being damped with time and the amplitude of $\theta$ remains constant through time.
 
 ##### Explanation:
-The reason behind such observation is that $α_1$ & $α_2$ are called **physical damping parameters** because they contribute to the formulation of the *Rayleigh damping* (i.e. $\boldsymbol{C} = α_1 \boldsymbol{M} + α_2 \boldsymbol{K}$) and as given in *Task 3a* $α_1 \neq 0 → C \neq 0$, consequently, all degree of freedoms are being damped by $\boldsymbol{C}$ regardless their frequencies. \
+The reason behind such observation is; $α_1$ & $α_2$ are called **physical damping parameters** because they contribute to the formulation of the *Rayleigh damping* (i.e. $\boldsymbol{C} = α_1 \boldsymbol{M} + α_2 \boldsymbol{K}$) and as given in *Task 3a* $α_1 \neq 0 → C \neq 0$, consequently, all degree of freedoms are being damped by $\boldsymbol{C}$ regardless their frequencies. \
 
 However, $ρ_∞$ is called **numerical damping parameter** due to the numerical error arised from this parameter that leads to damping. Additionally, it only damps degree of freedoms that has higher frequencies and this obvious in *task 3b* which has **no physical** damping but has **numerical** damping. \
 Finaly, in *task 3a* there is no numerical damping because, $γ = \frac{1}{2} → ρ_∞ = 1$ (slides pg. 59) and numerical damping only occurs if $γ > \frac{1}{2} → ρ_∞ < 1$
@@ -318,7 +423,7 @@ Finaly, in *task 3a* there is no numerical damping because, $γ = \frac{1}{2} �
 md"""#### Task 4 (Error Calculation):
 
 !!! note
-	Error calculation is already implemented in `generalized_alpha`. Accordingly, in this section, I will only show the equations that were used, some notes about regarding the implementation and the error graphs as well.
+	Error calculation is already implemented in `generalized_alpha`. Accordingly, in this section, I will only show the equations that were used, some notes regarding the implementation and the error graphs as well.
 
 ##### 4.1. Zienkiewicz and Xie (i.e. absolute error):
 $\begin{align}
@@ -378,7 +483,7 @@ end
 md"""#### Task 5 (Adaptive time stepping algorithim):
 
 5.1. We start by setting the current time to the initial time $t ← t_o$, and the current time step with the initil time step $Δt ← Δt_o$.
-5.2. Loop as long as current time is less or equal final time $(t ≤ t_f)$:
+5.2. Loop as long as current time is less or equal final time $(t ≤ t_f)$: \
 5.2.1. calculate the same objects as in the `generalized_alpha`.
 
 !!! note
@@ -403,6 +508,7 @@ t ← t + Δt
 """
 
 # ╔═╡ 205bd7ff-ab41-4ce2-bec8-6bfa411f21d0
+# this struct represents out time boundary that we need to stay in.
 struct AdaptiveTimeBoundary
 	ν₁::Float64
 	ν₂::Float64
@@ -410,16 +516,24 @@ struct AdaptiveTimeBoundary
 end
 
 # ╔═╡ e070700c-5bb9-4c62-9fe8-ac7b4eed7284
-function generalized_alpha_adaptive(tf,Δtₒ, α₁, α₂, ρ_∞,boundary::AdaptiveTimeBoundary)
+function generalized_alpha_adaptive(moment::LinearMomentum,ic::InitialConditions, time::RunTime,pd::PhysicalDamping,nd::NumericalDamping,boundary::AdaptiveTimeBoundary)
+	
+	M = moment.M # mass matrix
+	K = moment.K # stiffness matrix
+
+	α₁ = pd.α₁
+	α₂ = pd.α₂
+	
 	# calculate damping
 	C = α₁*M + α₂ * K
 	
 	# Initial conditions 
-	u_o = [0 , - L /5 ] 
-	ud_o = [sqrt(g/(6*L)),0]
+	u_o = ic.uₒ
+	ud_o = ic.vₒ
 	udd_o = inv(M) * (R - C * ud_o - K * u_o)
 
 	# Chung and Hulbert (1993)
+	ρ_∞ = nd.ρ_∞
 	α_m = (2*ρ_∞ - 1)/(ρ_∞ + 1)
 	α_f = (ρ_∞)/(ρ_∞+1)
 	β = 0.25 * (1 - α_m + α_f)^2
@@ -431,17 +545,22 @@ function generalized_alpha_adaptive(tf,Δtₒ, α₁, α₂, ρ_∞,boundary::Ad
 	ν₁ = boundary.ν₁
 	ν₂ = boundary.ν₂
 	ηₑ = boundary.ηₑ
-	lb = ν₁ * ηₑ 
-	ub = ν₂ * ηₑ
-	tₒ = 0.0 # initial time
-	t_current = tₒ # current time
+	lb = ν₁ * ηₑ # lower boundary
+	ub = ν₂ * ηₑ # upper boundary
+	
 
 	# define our respone containers
 	u = zeros(2,0)
 	ud = zeros(2,0)
 	udd = zeros(2,0)
-	t = [tₒ]
-	tstep = [Δtₒ]
+
+	# time data
+	tₒ = 0.0 # initial time
+	t_current = tₒ # current time
+	tf = time.tf # final time we want to solve for
+	Δtₒ = time.Δt # initial time step
+	t = [tₒ] # container for current time values
+	tstep = [Δtₒ] # container for the evolution of time steps
 	Δt = Δtₒ # current time step 
 
 	# set initial conditions in our response containers
@@ -494,7 +613,7 @@ function generalized_alpha_adaptive(tf,Δtₒ, α₁, α₂, ρ_∞,boundary::Ad
 		
 	end
 
-	(response =  DynamicResponse(u,ud,udd), error =  Error(e_abs,η,e_cum),time = TimeData(t,tstep))
+	(response =  DynamicResponse(u,ud,udd), error =  Error(e_abs,η,e_cum),time = TimeEvolution(t,tstep))
 end
 
 # ╔═╡ 0fdf106a-c40d-420d-a848-bf727fb49794
@@ -510,7 +629,7 @@ Given $α_1 = 1$, $α_2 = 0$, and $ρ_∞ = 1$, It's required to:
 time_bound = AdaptiveTimeBoundary(1.0,10.0,1e-3)
 
 # ╔═╡ a8a6e77e-1d13-4214-8927-0c6f1d1af222
-ad_resp , ad_err,ad_time = generalized_alpha_adaptive(5.0,0.01, 1.0, 0.0, 1.0,time_bound)
+ad_resp , ad_err,ad_time = generalized_alpha_adaptive(momentum,initial_coditions,runtime,physical_damping_a,numerical_damping_a,time_bound)
 
 # ╔═╡ a563b1e3-3013-4059-a33c-90c97f5b07fc
 begin
@@ -1637,19 +1756,32 @@ version = "1.4.1+1"
 # ╟─8f516750-0f93-4318-ae79-c361c40fce31
 # ╠═c5bf3248-2ff1-4257-ba34-8b322b667abb
 # ╟─6075d462-d1ff-4b30-9de8-2f7a1eb9ecdf
+# ╟─a489ace2-1838-4558-b286-ccce61993f56
 # ╠═774a153f-df2e-4fd0-a8db-ba370f8057c1
 # ╠═0b86fb31-1e75-4c0d-8704-a95ec5318218
+# ╠═61b9a2be-b4b0-4202-b74a-a447148d98ef
 # ╠═380f1415-27af-4b21-a93e-9fbabdd27a30
 # ╟─67cf6c46-7e1e-4f20-bba7-d6c2b9d53cf0
+# ╟─8dbfb59a-e58e-4a30-8b1d-a0d9df1dd462
+# ╠═29053a71-d588-45d7-863f-88a7211eaff1
+# ╠═abda6326-b895-49fc-96d8-24130cbfb1bf
+# ╠═c008a1a9-f37a-4a1f-af09-a2e09a27965b
+# ╠═c76c8c38-cbba-411d-ae96-6a491ed430fa
+# ╠═2686c72c-eca5-4d91-8245-06070e865f5b
+# ╠═30f8aa72-a5a3-46a4-9900-03a771998c58
+# ╟─6f62ec53-9efd-498e-9a3b-ac11a51e9af1
 # ╠═45b7da6f-7b81-452c-8274-fa797698d35f
 # ╠═b1057602-76fe-469c-b382-05c65fb14e60
 # ╠═7b31aad9-d4f3-40d7-a7c7-18d25cb19139
 # ╠═3cea61f0-bc04-4092-8e3b-7803932865d5
-# ╠═9d7e83e5-4d75-4d96-913f-a656d9866735
+# ╟─e5a45366-2e27-4509-800b-8f279f2c52b3
+# ╠═aeed0ca1-954f-4b04-88d7-0ba1405458d4
 # ╟─e0ced7bc-baae-4c15-8b6e-9e50be04ced9
+# ╠═56395d02-19fd-4b9e-8f92-6e88aa4428c7
 # ╠═f27a727f-f80c-4dd2-bdef-63c7f3ca587f
 # ╠═2a801b3c-49a3-4aa7-be75-452711c4d4a0
 # ╟─20193589-4189-4347-ac5d-0e4370152ce6
+# ╠═011d1b7c-4535-47ad-a42c-4affa41f4588
 # ╠═7cb8658f-9a03-4807-8e18-3775b3f675aa
 # ╟─4ac90089-eee4-4ce3-a2e8-0152877f4414
 # ╟─5309e3a3-ab35-4cc4-88cc-119813ab62a5
