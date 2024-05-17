@@ -38,17 +38,17 @@ md""" #### Task 2: Kinetic energy, Potential energy, Lagrangian:
 ##### Kinetic Energy (T):
 
 $\begin{align}
-T = \frac{1}{2} m' (\dot{s}_1 + \dot{s}_2) = \frac{1}{2} (2m + M) L^2 (\dot{θ}_1 + \dot{θ}_2)
+T = \frac{1}{2} m' (\dot{s}^2_1 + \dot{s}^2_2) = \frac{1}{2} (2m + M) L^2 (\dot{θ}^2_1 + \dot{θ}^2_2)
 \end{align}$
 
 ##### Potential Energy (V):
 
 !!! note
-	The potential energy will be due to two things; 1) position of the mass, 2) deformation of spring (i.e. elastic energy).
+	The potential energy will be due to two things; 1) height of the mass from the origin point, 2) deformation of spring (i.e. elastic energy).
 
 $\begin{gather}
 
-V = m'gL(1 - \cos θ_1) + m'gL(1- \cos θ_2) + \underbrace{ \frac{1}{2} k Δu}_{\text{PE due to spring}} \\
+V = m'gL(1 - \cos θ_1) + m'gL(1- \cos θ_2) + \underbrace{ \frac{1}{2} k Δu^2}_{\text{PE due to spring}} \\
 
 V = (2m + M)L(2 - \cos θ_1 - \cos θ_2) + \frac{1}{2} k L^2 (\sin θ_2 - \sin θ_1)^2
 
@@ -58,7 +58,7 @@ V = (2m + M)L(2 - \cos θ_1 - \cos θ_2) + \frac{1}{2} k L^2 (\sin θ_2 - \sin �
 
 $\begin{gather}
 L = T - V \\
-L = \frac{1}{2} (2m + M) L^2 (\dot{θ}_1 + \dot{θ}_2) - (2m + M)L(2 - \cos θ_1 - \cos θ_2) - \frac{1}{2} k L^2 (\sin θ_2 - \sin θ_1)^2
+L = \frac{1}{2} (2m + M) L^2 (\dot{θ}^2_1 + \dot{θ}^2_2) - (2m + M)L(2 - \cos θ_1 - \cos θ_2) - \frac{1}{2} k L^2 (\sin θ_2 - \sin θ_1)^2
 \end{gather}$
 
 """
@@ -88,7 +88,7 @@ $\begin{gather}
 
 $\begin{gather}
 
-\frac{∂L}{∂θ_2} = - (2m + M) L (\sin θ_2) - kL^2 (\sin θ_2 - \sin θ_1) (- \cos θ_2) \\
+\frac{∂L}{∂θ_2} = - (2m + M) L (\sin θ_2) - kL^2 (\sin θ_2 - \sin θ_1) ( \cos θ_2) \\
 
 \frac{∂L}{∂\dot{θ}_2} = (2m + M) L^2 \dot{θ}_2 \\
 
@@ -106,9 +106,9 @@ $\begin{gather}
 	$\cos θ ≈ 1 →$ (e.g. $\cos 0 = 1$)
 
 $\begin{gather}
-- (2m + M) L \underbrace{(\sin θ_1)}_{θ_1} + kL^2 \underbrace{\cos θ_1}_{1} \underbrace{(\sin θ_2 - \sin θ_1)}_{(θ_2 - θ_1)}  - (2m + M) L^2 \ddot{θ}_1 = 0 \\
+- (2m + M) L \underbrace{(\sin θ_1)}_{≈ θ_1} + kL^2 \underbrace{\cos θ_1}_{≈1} \underbrace{(\sin θ_2 - \sin θ_1)}_{≈(θ_2 - θ_1)}  - (2m + M) L^2 \ddot{θ}_1 = 0 \\
 
-- (2m + M) L \underbrace{(\sin θ_2)}_{θ_2} - kL^2 \underbrace{ \cos θ_2}_{1} \underbrace{ (\sin θ_2 - \sin θ_1)}_{(θ_2 - θ_1)}  - (2m + M) L^2 \ddot{θ}_2 = 0
+- (2m + M) L \underbrace{(\sin θ_2)}_{≈θ_2} - kL^2 \underbrace{ \cos θ_2}_{≈1} \underbrace{ (\sin θ_2 - \sin θ_1)}_{≈(θ_2 - θ_1)}  - (2m + M) L^2 \ddot{θ}_2 = 0
 
 \end{gather}$
 
@@ -192,7 +192,7 @@ $\begin{gather}
 for eq. 4 to be valid for nonzero $\boldsymbol{ϕ}$, then $(\boldsymbol{K} - λ \boldsymbol{M})$ has to be singular matrix $\iff \det(\boldsymbol{K} - λ \boldsymbol{M}) \overset{!}{=} 0$.
 
 $\begin{gather}
-\boldsymbol{K} - λ \boldsymbol{M} = 
+⇒ \boldsymbol{K} - λ \boldsymbol{M} = 
 \begin{bmatrix}
 3750 & -3000 \\
 -3000 & 3750
@@ -336,9 +336,9 @@ $\begin{gather}
 """
 
 # ╔═╡ 3e1f29dd-8796-4b5a-9bd9-afcc1a0e8923
-md""" #### Task 5:
+md""" #### Task 5: Orthogonality of the eigenvectors:
 
-since $\boldsymbol{ϕ}_1 ⋅ \boldsymbol{ϕ}_2 =0$, then the eigenvectors are orthogonal and the reason behind that is that $\boldsymbol{K}$ is symmetric matrix and from linear algebra we know that for any symmetric matrix of *dim = n*, it has *n* real eigenvalues and its eigenvectors are orthogonal.
+since $\boldsymbol{ϕ}_1 ⋅ \boldsymbol{ϕ}_2 =0$, then the eigenvectors are orthogonal and the reason is that $\boldsymbol{K}$ is symmetric matrix and from linear algebra we know that for any symmetric matrix of *dim = n* (i.e. $ℝ^{nxn}$), it has *n* real eigenvalues and its eigenvectors are orthogonal.
 
 """
 
