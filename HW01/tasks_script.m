@@ -16,7 +16,15 @@ TOL = 1e-6; % Convergence tolerence.
 
 x1 = [1;0]; % initial guess for Task 7.
 
+% Froward Iteration
 [lambda, phi, n ]= forward_iter(K,M,x1,TOL);
-lambda
-phi
-n
+lambda % 9 -> (largest eigen value)
+phi % [0.7071; -0.7071]
+n % 5
+
+% Inverse Iteration
+[lambda, phi, n ]= inverse_iter(K,M,x1,TOL);
+lambda % 1 -> (smallest eigen value)
+phi % [0.7071; 0.7071]
+n % 5
+
