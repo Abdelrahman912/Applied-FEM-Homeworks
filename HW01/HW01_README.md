@@ -1,5 +1,9 @@
 ### Homework 01 Instructions
 
+#### Credits and source code:
+This code is done by Abdelrahman Fathy Abdelrahman.
+Source code can be found on his Github repository: https://github.com/Abdelrahman912/Applied-FEM-Homeworks/tree/main/HW01
+
 #### Type of files in this folder:
 1. Matlab files (i.e. .m files).
 2. HTML file
