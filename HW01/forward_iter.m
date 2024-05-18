@@ -1,3 +1,4 @@
+
 function [lambda, phi, n ] =  forward_iter(K,M,x,TOL)
 
     % K: stifnness matrix
