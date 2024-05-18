@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.41
+# v0.17.3
 
 using Markdown
 using InteractiveUtils
@@ -50,7 +50,7 @@ $\begin{gather}
 
 V = m'gL(1 - \cos θ_1) + m'gL(1- \cos θ_2) + \underbrace{ \frac{1}{2} k Δu^2}_{\text{PE due to spring}} \\
 
-V = (2m + M)L(2 - \cos θ_1 - \cos θ_2) + \frac{1}{2} k L^2 (\sin θ_2 - \sin θ_1)^2
+V = (2m + M)gL(2 - \cos θ_1 - \cos θ_2) + \frac{1}{2} k L^2 (\sin θ_2 - \sin θ_1)^2
 
 \end{gather}$
 
@@ -58,7 +58,7 @@ V = (2m + M)L(2 - \cos θ_1 - \cos θ_2) + \frac{1}{2} k L^2 (\sin θ_2 - \sin �
 
 $\begin{gather}
 L = T - V \\
-L = \frac{1}{2} (2m + M) L^2 (\dot{θ}^2_1 + \dot{θ}^2_2) - (2m + M)L(2 - \cos θ_1 - \cos θ_2) - \frac{1}{2} k L^2 (\sin θ_2 - \sin θ_1)^2
+L = \frac{1}{2} (2m + M) L^2 (\dot{θ}^2_1 + \dot{θ}^2_2) - (2m + M)gL(2 - \cos θ_1 - \cos θ_2) - \frac{1}{2} k L^2 (\sin θ_2 - \sin θ_1)^2
 \end{gather}$
 
 """
@@ -74,13 +74,13 @@ $\begin{align}
 
 $\begin{gather}
 
-\frac{∂L}{∂θ_1} = - (2m + M) L (\sin θ_1) - kL^2 (\sin θ_2 - \sin θ_1) (- \cos θ_1) \\
+\frac{∂L}{∂θ_1} = - (2m + M)g L (\sin θ_1) - kL^2 (\sin θ_2 - \sin θ_1) (- \cos θ_1) \\
 
 \frac{∂L}{∂\dot{θ}_1} = (2m + M) L^2 \dot{θ}_1 \\
 
 \frac{d}{dt} \left( \frac{∂L}{∂\dot{θ}_1} \right) = (2m + M) L^2 \ddot{θ}_1 \\
 
-∴ - (2m + M) L (\sin θ_1) - kL^2 (\sin θ_2 - \sin θ_1) (- \cos θ_1) - (2m + M) L^2 \ddot{θ}_1 = 0
+∴ - (2m + M) gL (\sin θ_1) - kL^2 (\sin θ_2 - \sin θ_1) (- \cos θ_1) - (2m + M) L^2 \ddot{θ}_1 = 0
 
 \end{gather}$
 
@@ -88,13 +88,13 @@ $\begin{gather}
 
 $\begin{gather}
 
-\frac{∂L}{∂θ_2} = - (2m + M) L (\sin θ_2) - kL^2 (\sin θ_2 - \sin θ_1) ( \cos θ_2) \\
+\frac{∂L}{∂θ_2} = - (2m + M)g L (\sin θ_2) - kL^2 (\sin θ_2 - \sin θ_1) ( \cos θ_2) \\
 
 \frac{∂L}{∂\dot{θ}_2} = (2m + M) L^2 \dot{θ}_2 \\
 
 \frac{d}{dt} \left( \frac{∂L}{∂\dot{θ}_2} \right) = (2m + M) L^2 \ddot{θ}_2 \\
 
-∴ - (2m + M) L (\sin θ_2) - kL^2 (\sin θ_2 - \sin θ_1) (\cos θ_2) - (2m + M) L^2 \ddot{θ}_2 = 0
+∴ - (2m + M)g L (\sin θ_2) - kL^2 (\sin θ_2 - \sin θ_1) (\cos θ_2) - (2m + M) L^2 \ddot{θ}_2 = 0
 
 \end{gather}$
 
@@ -106,9 +106,9 @@ $\begin{gather}
 	$\cos θ ≈ 1 →$ (e.g. $\cos 0 = 1$)
 
 $\begin{gather}
-- (2m + M) L \underbrace{(\sin θ_1)}_{≈ θ_1} + kL^2 \underbrace{\cos θ_1}_{≈1} \underbrace{(\sin θ_2 - \sin θ_1)}_{≈(θ_2 - θ_1)}  - (2m + M) L^2 \ddot{θ}_1 = 0 \\
+- (2m + M) g L \underbrace{(\sin θ_1)}_{≈ θ_1} + kL^2 \underbrace{\cos θ_1}_{≈1} \underbrace{(\sin θ_2 - \sin θ_1)}_{≈(θ_2 - θ_1)}  - (2m + M) L^2 \ddot{θ}_1 = 0 \\
 
-- (2m + M) L \underbrace{(\sin θ_2)}_{≈θ_2} - kL^2 \underbrace{ \cos θ_2}_{≈1} \underbrace{ (\sin θ_2 - \sin θ_1)}_{≈(θ_2 - θ_1)}  - (2m + M) L^2 \ddot{θ}_2 = 0
+- (2m + M) g L \underbrace{(\sin θ_2)}_{≈θ_2} - kL^2 \underbrace{ \cos θ_2}_{≈1} \underbrace{ (\sin θ_2 - \sin θ_1)}_{≈(θ_2 - θ_1)}  - (2m + M) L^2 \ddot{θ}_2 = 0
 
 \end{gather}$
 
@@ -116,9 +116,9 @@ By dividing both equation by $L^2$:
 
 $\begin{gather}
 
-(2m + M) \ddot{θ}_1 + \frac{(2m + M)}{L} θ_1 - k(θ_2 - θ_1)   = 0 \\
+(2m + M) \ddot{θ}_1 + \frac{(2m + M) g}{L}  θ_1 - k(θ_2 - θ_1)   = 0 \\
 
-(2m + M) \ddot{θ}_2 + \frac{(2m + M)}{L} θ_2 + k(θ_2 - θ_1)   = 0 \\
+(2m + M) \ddot{θ}_2 + \frac{(2m + M) g}{L}  θ_2 + k(θ_2 - θ_1)   = 0 \\
 \end{gather}$
 
 Putting both equations in matrix form will yield:
@@ -139,8 +139,8 @@ $\begin{gather}
 
 \underbrace{
 \begin{bmatrix}
-\frac{2m+M}{L} + k & -k \\
--k & \frac{2m+M}{L} + k
+\frac{(2m+M) g}{L} + k & -k \\
+-k & \frac{(2m+M) g}{L} + k
 \end{bmatrix}}_{\boldsymbol{K}} ⋅ 
 
 \underbrace{
@@ -194,46 +194,46 @@ for eq. 4 to be valid for nonzero $\boldsymbol{ϕ}$, then $(\boldsymbol{K} - λ 
 $\begin{gather}
 ⇒ \boldsymbol{K} - λ \boldsymbol{M} = 
 \begin{bmatrix}
-3750 & -3000 \\
--3000 & 3750
+10350 & -3000 \\
+-3000 & 10350
 \end{bmatrix} - 
 λ\begin{bmatrix}
 750 & 0\\
 0 & 750
 \end{bmatrix} = 
 \begin{bmatrix}
-3750 - 750λ & -3000 \\
--3000 & 3750 - 750λ
+10350 - 750λ & -3000 \\
+-3000 & 10350 - 750λ
 \end{bmatrix} \\ 
 ⇒ \det \left(  
 
 \begin{bmatrix}
-3750 - 750λ & -3000 \\
--3000 & 3750 - 750λ
+10350 - 750λ & -3000 \\
+-3000 & 10350 - 750λ
 \end{bmatrix} \\ 
 
 \right) = 0 \\
 
-⇒ (3750 - 750λ)^2 - 9 × 10^6 = 0 \\
+⇒ (10350 - 750λ)^2 - 9 × 10^6 = 0 \\
 
-⇒ 562500λ^2 - 5625000λ + 5062500 = 0 \\
+⇒ 562500λ^2 - 15525000λ + 98122500 = 0 \\
 
-⇒ λ^2 - 10λ + 9 = 0
+⇒ λ^2 - 27.6λ + 174.44 = 0
 \end{gather}$
 
 solving the previous polynomial will yield the following eigenvalues:
 
 $\begin{gather}
-λ_1 = 9 \\
-λ_2 = 1
+λ_1 = 17.8 \\
+λ_2 = 9.8
 \end{gather}$
 
 ##### Eigenvector for $λ_1$:
 
 $\begin{gather}
 \begin{bmatrix}
-3750 - 750λ_1 & -3000 \\
--3000 & 3750 - 750λ_1
+10350 - 750λ_1 & -3000 \\
+-3000 & 10350 - 750λ_1
 \end{bmatrix} ⋅ 
 
 \begin{bmatrix}
@@ -283,8 +283,8 @@ $\begin{gather}
 
 $\begin{gather}
 \begin{bmatrix}
-3750 - 750λ_2 & -3000 \\
--3000 & 3750 - 750λ_2
+10350 - 750λ_2 & -3000 \\
+-3000 & 10350 - 750λ_2
 \end{bmatrix} ⋅ 
 
 \begin{bmatrix}
@@ -358,6 +358,9 @@ begin
 	g = 9.8
 	(;m,M_,k,L,g)
 end
+
+# ╔═╡ 8d2dcee6-667c-49f2-95a4-11ea33d615a2
+((2m+M_)*g)/L + k
 
 # ╔═╡ 32ecc5e7-86b0-4655-84ca-646fbf9e2fac
 struct Eigen{Eigenvalue<:Real,Eigenvector<:Vector}
@@ -439,7 +442,7 @@ end
 
 # ╔═╡ 97f6ebfa-80ae-4998-babe-52232179548e
 begin
-	K = [(2m + M_)/L + k -k; -k (2m + M_)/L + k]
+	K = [((2m + M_)*g)/L + k -k; -k ((2m + M_)*g)/L + k]
 	M = [2m+M_ 0;0 2m+M_]
 	TOL = 1e-6
 	(;K,M,TOL)
@@ -471,7 +474,7 @@ forward_iter(K,M,x₁,TOL)
 # ╔═╡ 0776dd77-6667-4cd9-9863-300bb77f42d7
 md"""
 !!! note
-	The returned eigenvalue from the **forward iteration** method is *9* which 		is the **largest**. Moreover, the algorithim **converged after *5* iterations**.
+	The returned eigenvalue from the **forward iteration** method is *17.8* which 		is the **largest**. Moreover, the algorithim **converged after *5* iterations**.
 """
 
 # ╔═╡ 3c4b0ebc-2d83-41d7-ab4e-274173df0ec4
@@ -1637,6 +1640,7 @@ version = "17.4.0+2"
 # ╟─db1afce8-dbc9-437e-9521-2a1304db9aa1
 # ╟─c2ad656a-b88d-4eca-afad-a2c684ba169d
 # ╟─262235a3-4b6e-492c-8a53-8a8d6651996a
+# ╠═8d2dcee6-667c-49f2-95a4-11ea33d615a2
 # ╟─42337a00-57b7-45ab-a823-ce1af16125ef
 # ╟─3e1f29dd-8796-4b5a-9bd9-afcc1a0e8923
 # ╟─e121927d-2e5e-469d-aba9-3bd104fca5a2

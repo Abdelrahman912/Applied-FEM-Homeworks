@@ -7,7 +7,7 @@ k = 3e3;
 L = 1.0;
 g = 9.8;
 
-K = [(2*m + M_)/L + k -k; -k (2*m + M_)/L + k]; % Stiffness Matrix
+K = [((2*m + M_)*g)/L + k -k; -k ((2*m + M_)*g)/L + k]; % Stiffness Matrix
 M = [2*m+M_ 0;0 2*m+M_]; % Mass Matrix
 TOL = 1e-6; % Convergence tolerence.
 
@@ -18,19 +18,20 @@ x1 = [1;0]; % initial guess for Task 7.
 
 % Froward Iteration
 [lambda, phi, n ]= forward_iter(K,M,x1,TOL);
-lambda % 9 -> (largest eigen value)
+lambda % 17.8 -> (largest eigen value)
 phi % [0.7071; -0.7071]
-n % 5
+n % 12
 
 % Inverse Iteration
 [lambda, phi, n ]= inverse_iter(K,M,x1,TOL);
-lambda % 1 -> (smallest eigen value)
+lambda % 9.8 -> (smallest eigen value)
 phi % [0.7071; 0.7071]
-n % 5
+n % 13
 
 % Task 8:
 x2 = [1;1]; % initial guess for Task 8.
 [lambda, phi, n ]= forward_iter(K,M,x2,TOL);
-lambda % 1 -> (smallest eigen value)
+lambda % 9.8 -> (smallest eigen value)
 phi % [0.7071; 0.7071]
 n % 2
+
