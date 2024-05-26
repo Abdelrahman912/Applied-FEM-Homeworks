@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -335,14 +335,14 @@ function generalized_alpha(moment::LinearMomentum,ic::InitialConditions, time::R
 		u[:,i+1] = K_eff \ r_eff
 
 		# update velocity and acceleration
-		ud[:,i+1] = ((γ)/(β*Δt)) * (u[:,i+1] - u[:,i]) - ((γ - β)/(β))*ud[:,i] - ((γ - 2*β)/(2*β)) * Δt * udd[:,i]
+		ud[:,i+1] = ((γ)/(β*Δt)) * (u[:,i+1] - u[:,i]) - ((γ - β)/(β))*ud[:,i] - ((γ- 2*β)/(2*β)) * Δt * udd[:,i]
 
 		udd[:,i+1] = (1/(β*Δt^2))*(u[:,i+1] - u[:,i]) - (1/(β*Δt)) * ud[:,i] - ((1-2*β)/(2*β)) * udd[:,i]
 
 		# calculate errors 
-			e_abs[i+1] = norm(((6*β - 1)/(6))*(udd[:,i+1] - udd[:,i]) * Δt^2)
-		η[i+1] = e_abs[i+1] / norm(u[i+1] - u[i])
-		e_cum[i+1] = sum(e_abs)
+		e_abs[i+1] = norm(((6*β - 1)/(6))*(udd[:,i+1] - udd[:,i]) * Δt^2);
+		η[i+1] = e_abs[i+1] / norm(u[:,i+1] - u[:,i]);
+		e_cum[i+1] = sum(e_abs);
 	end
 
 	(response = DynamicResponse(u,ud,udd), errors = Error(e_abs,η,e_cum),time = TimeEvolution(t,steps))
@@ -630,6 +630,9 @@ time_bound = AdaptiveTimeBoundary(1.0,10.0,1e-3)
 
 # ╔═╡ a8a6e77e-1d13-4214-8927-0c6f1d1af222
 ad_resp , ad_err,ad_time = generalized_alpha_adaptive(momentum,initial_coditions,runtime,physical_damping_a,numerical_damping_a,time_bound)
+
+# ╔═╡ d129c3c0-9703-4fd6-9170-bda7b49e3f22
+ad_err.η[20]
 
 # ╔═╡ a563b1e3-3013-4059-a33c-90c97f5b07fc
 begin
@@ -1798,6 +1801,7 @@ version = "1.4.1+1"
 # ╟─0fdf106a-c40d-420d-a848-bf727fb49794
 # ╠═6c54aec1-0c49-4f3f-979c-7fbf964ee22f
 # ╠═a8a6e77e-1d13-4214-8927-0c6f1d1af222
+# ╠═d129c3c0-9703-4fd6-9170-bda7b49e3f22
 # ╠═a563b1e3-3013-4059-a33c-90c97f5b07fc
 # ╠═34a2be2a-1256-471b-a6e3-7234702e796d
 # ╠═4b3d6d84-07dc-4ccc-b26e-322946749c74
