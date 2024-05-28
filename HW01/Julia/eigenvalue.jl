@@ -343,6 +343,25 @@ md""" #### Task 5: Orthogonality of the eigenvectors:
 
 since $\boldsymbol{ϕ}_1 ⋅ \boldsymbol{ϕ}_2 =0$, then the eigenvectors are orthogonal and the reason is that $\boldsymbol{K}$ is symmetric matrix and from linear algebra we know that for any symmetric matrix of *dim = n* (i.e. $ℝ^{nxn}$), it has *n* real eigenvalues and its eigenvectors are orthogonal.
 
+##### Proof of the argument:
+suppose $\boldsymbol{A}$ is a symmetric matrix (i.e. $\boldsymbol{A} = \boldsymbol{A}^T$) with two eigenvectors and eigenvalues. \
+i.e.,
+
+$\begin{gather}
+\boldsymbol{A} \cdot \boldsymbol{\phi_1} = \lambda_1 \boldsymbol{\phi_1} \\
+\boldsymbol{A} \cdot \boldsymbol{\phi_2} = \lambda_2 \boldsymbol{\phi_2} \\
+
+\end{gather}$
+
+Therefore,
+
+$\begin{gather}
+\boldsymbol{\phi_2}^T \cdot \boldsymbol{A} \cdot \boldsymbol{\phi_1} = \lambda_1 \boldsymbol{\phi_2}^T \cdot \boldsymbol{\phi_1}  \rightarrow \text{(eq. 5)}\\
+(\boldsymbol{A} \cdot \boldsymbol{\phi_2} )^T \cdot \boldsymbol{\phi_1}  = \lambda_2 \boldsymbol{\phi_2}^T  \cdot \boldsymbol{\phi_1} \rightarrow \text{(eq. 6)}\\
+
+\end{gather}$
+
+Both Equation *5* & *6* are equal and for equality to be valid for non zero $\lambda$ then  $\phi_1$ and $\phi_2$ has to be orthogonal.
 """
 
 # ╔═╡ e121927d-2e5e-469d-aba9-3bd104fca5a2
@@ -477,7 +496,7 @@ forward_iter(K,M,x₁,TOL)
 # ╔═╡ 0776dd77-6667-4cd9-9863-300bb77f42d7
 md"""
 !!! note
-	The returned eigenvalue from the **forward iteration** method is *17.8* which 		is the **largest**. Moreover, the algorithim **converged after *5* iterations**.
+	The returned eigenvalue from the **forward iteration** method is *17.8* which 		is the **largest**. Moreover, the algorithim **converged after *12* iterations**.
 """
 
 # ╔═╡ 3c4b0ebc-2d83-41d7-ab4e-274173df0ec4
@@ -491,7 +510,7 @@ inverse_iter(K,M,x₁,TOL)
 # ╔═╡ 31986601-41b7-40be-b906-3cd7a5303058
 md"""
 !!! note
-	The returned eigenvalue from the **inverse iteration** method is *1* which 		is the **smallest**. Moreover, the algorithim **converged after *5* iterations**.
+	The returned eigenvalue from the **inverse iteration** method is *9.8* which 		is the **smallest**. Moreover, the algorithim **converged after *13* iterations**.
 """
 
 # ╔═╡ f58feb02-960f-4f2c-8dcd-0c68f274ced0
