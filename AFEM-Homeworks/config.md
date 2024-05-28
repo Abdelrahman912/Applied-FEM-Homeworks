@@ -19,7 +19,7 @@ ignore = ["node_modules/"]
 generate_rss = false
 
 +++
-@def prepath = "AFEM-Homeworks"
+@def prepath = "Applied-FEM-Homeworks"
 <!--
 Add here global latex commands to use throughout your pages.
 -->
