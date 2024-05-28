@@ -14,6 +14,14 @@
 **Source Code:** 
 ~~~ 
 <span>🔧<a href="https://github.com/Abdelrahman912/Applied-FEM-Homeworks" target="_blank" >  Applied-FEM-Homeworks Repository</a> </span>
+~~~ \
+
+**Supervisors:** 
+1.   ~~~
+<span>👨‍🏫<a href="https://www.sd.ruhr-uni-bochum.de/mitarbeiter/Sauer.html" target="_blank" >  Prof. Dr. Roger Sauer Repository</a> </span>
+~~~
+2.   ~~~
+<span>👨‍🏫<a href="https://www.sd.ruhr-uni-bochum.de/mitarbeiter/Butt.html" target="_blank" >  M.Sc. Sahir Nawaz Butt Repository</a> </span>
 ~~~
 
 
