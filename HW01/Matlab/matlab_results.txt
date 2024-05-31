@@ -1,0 +1,33 @@
+Homework 1: Equations of motion and eigenvalue problem 
+Name: Abdelrahman Fathy Abdelhaleem Aly Abdelrahman 
+Matr.-Nr.: 108023251500 
+ 
+
+Stiffness Matrix: 
+       10350       -3000
+       -3000       10350
+
+
+Mass Matrix: 
+   750     0
+     0   750
+
+
+Task 7: 
+Forward Iteration: 
+eigen value: 17.799995 
+eigen vector: [0.707655, -0.706558] 
+number of iterations: 12 
+ 
+
+Inverse Iteration: 
+eigen value: 9.800001 
+eigen vector: [0.707409, 0.706805] 
+number of iterations: 13 
+ 
+
+Task 8: 
+Forward Iteration with initial guess [1.000000, 1.000000]: 
+eigen value: 9.800000 
+eigen vector: [0.707107, 0.707107] 
+number of iterations: 2 
