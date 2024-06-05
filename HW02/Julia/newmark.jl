@@ -86,7 +86,7 @@ $\begin{align}
 """
 
 # ╔═╡ a489ace2-1838-4558-b286-ccce61993f56
-md""" #### Data inputs:
+md""" ##### 1.1. Data inputs:
 $\begin{gather}
 Δt = 0.01 \; s \\
 L = 1.0 \; m \\
@@ -129,6 +129,76 @@ begin
 	α_2 = 0.0
 	C = α_1*M + α_2 * K
 end
+
+# ╔═╡ beb16a71-5d9c-4b75-9f76-25bc688d07c6
+md""" ##### 1.2. Semi-discrete equation of motion:
+
+$\begin{gather}
+\boldsymbol{M} = 
+\begin{bmatrix}
+0.3333 & 0 \\
+0 & 0.3333
+\end{bmatrix}   \space , \space 
+\boldsymbol{K} = 
+\begin{bmatrix}
+4.9 & 0 \\
+0 & 500.0
+\end{bmatrix}
+\end{gather}$
+
+when plugging in *Rayleigh* damping (i.e. $\boldsymbol{C}$) by $\alpha_1 = 1.0, \alpha_2 = 0.0$ will yield:
+
+$\begin{gather}
+\boldsymbol{C} = 
+\begin{bmatrix}
+0.3333 & 0 \\
+0 & 0.3333
+\end{bmatrix}
+\end{gather}$
+
+finally, we can write the final form of the semi-discrete equation of motion as follows:
+
+$\begin{gather}
+
+\underbrace{\begin{bmatrix}
+0.3333 & 0 \\
+0 & 0.3333
+\end{bmatrix}}_{\boldsymbol{M}} \cdot 
+
+\underbrace{\begin{bmatrix}
+\ddot{\theta} \\
+\ddot{u}
+\end{bmatrix}}_{\ddot{\boldsymbol{u}}}
++
+\underbrace{\begin{bmatrix}
+0.3333 & 0 \\
+0 & 0.3333
+\end{bmatrix}}_{\boldsymbol{C}} \cdot 
+\underbrace{\begin{bmatrix}
+\dot{\theta} \\
+\dot{u}
+\end{bmatrix}}_{\dot{\boldsymbol{u}}} + 
+
+\underbrace{\begin{bmatrix}
+4.9 & 0 \\
+0 & 500.0
+\end{bmatrix}}_{\boldsymbol{K}} \cdot 
+
+\underbrace{\begin{bmatrix}
+\theta \\
+u
+\end{bmatrix}}_{\boldsymbol{u}} = 
+
+\underbrace{\begin{bmatrix}
+0 \\
+0
+\end{bmatrix}}_{\boldsymbol{R}}
+
+\end{gather}$
+
+
+
+"""
 
 # ╔═╡ 67cf6c46-7e1e-4f20-bba7-d6c2b9d53cf0
 md"""#### Task 2:
@@ -383,7 +453,18 @@ resp_a , err_a ,time_a= generalized_alpha(momentum,initial_coditions,runtime,phy
 begin
 	plot(time_a.times,resp_a.u[1,:],title="Displacement response with time (Task 3a)",xlabel=L"time",ylabel=L"displacement",label=L"$\theta$")
 	plot!(time_a.times,resp_a.u[2,:],label=L"u")
+end
 
+# ╔═╡ bde3742d-134a-46ba-867a-5f14603c3135
+begin
+	plot(time_a.times,resp_a.ud[1,:],title="Velocity response with time (Task 3a)",xlabel=L"time",ylabel=L"velocity",label=L"$\dot{\theta}$")
+	plot!(time_a.times,resp_a.ud[2,:],label=L"\dot{u}")
+end
+
+# ╔═╡ 68ca1190-aa39-4b0c-a3bb-1e10adc90d4c
+begin
+	plot(time_a.times,resp_a.udd[1,:],title="Acceleration response with time (Task 3a)",xlabel=L"time",ylabel=L"acceleration",label=L"$\ddot{\theta}$")
+	plot!(time_a.times,resp_a.udd[2,:],label=L"\ddot{u}")
 end
 
 # ╔═╡ 20193589-4189-4347-ac5d-0e4370152ce6
@@ -405,6 +486,18 @@ resp_b , err_b, time_b= generalized_alpha(momentum,initial_coditions,runtime,phy
 begin
 	plot(time_b.times,resp_b.u[1,:],title="Displacement response with time (Task 3b)",xlabel=L"time",ylabel=L"displacement",label=L"$\theta$")
 	plot!(time_b.times,resp_b.u[2,:],label=L"u")
+end
+
+# ╔═╡ d3ec3715-f7de-4761-8215-e6d0a5f7a1b4
+begin
+	plot(time_b.times,resp_b.ud[1,:],title="Velocity response with time (Task 3b)",xlabel=L"time",ylabel=L"velocity",label=L"$\dot{\theta}$")
+	plot!(time_b.times,resp_b.ud[2,:],label=L"\dot{u}")
+end
+
+# ╔═╡ 7fe1653b-edce-467b-ba80-79b8a3fa7c91
+begin
+	plot(time_b.times,resp_b.udd[1,:],title="Acceleration response with time (Task 3b)",xlabel=L"time",ylabel=L"acceleration",label=L"$\ddot{\theta}$")
+	plot!(time_b.times,resp_b.udd[2,:],label=L"\ddot{u}")
 end
 
 # ╔═╡ 5309e3a3-ab35-4cc4-88cc-119813ab62a5
@@ -639,6 +732,18 @@ begin
 	plot(ad_time.times,ad_resp.u[1,:],title="Displacement Response (Adaptive)",xlabel=L"time",ylabel=L"displacement",label=L"$\theta$")
 	plot!(ad_time.times,ad_resp.u[2,:],label=L"u")
 
+end
+
+# ╔═╡ 55760f96-eb91-4de4-badd-1aae1550d6fa
+begin
+	plot(ad_time.times,ad_resp.ud[1,:],title="Velocity Response (Adaptive)",xlabel=L"time",ylabel=L"velocity",label=L"$\dot{\theta}$")
+	plot!(ad_time.times,ad_resp.ud[2,:],label=L"\dot{u}")
+end
+
+# ╔═╡ 2408bc23-49ae-4b50-9580-1f6548cc68c9
+begin
+	plot(ad_time.times,ad_resp.udd[1,:],title="Acceleration Response (Adaptive)",xlabel=L"time",ylabel=L"acceleration",label=L"$\ddot{\theta}$")
+	plot!(ad_time.times,ad_resp.udd[2,:],label=L"\ddot{u}")
 end
 
 # ╔═╡ 34a2be2a-1256-471b-a6e3-7234702e796d
@@ -1764,6 +1869,7 @@ version = "1.4.1+1"
 # ╠═0b86fb31-1e75-4c0d-8704-a95ec5318218
 # ╠═61b9a2be-b4b0-4202-b74a-a447148d98ef
 # ╠═380f1415-27af-4b21-a93e-9fbabdd27a30
+# ╟─beb16a71-5d9c-4b75-9f76-25bc688d07c6
 # ╟─67cf6c46-7e1e-4f20-bba7-d6c2b9d53cf0
 # ╟─8dbfb59a-e58e-4a30-8b1d-a0d9df1dd462
 # ╠═29053a71-d588-45d7-863f-88a7211eaff1
@@ -1783,10 +1889,14 @@ version = "1.4.1+1"
 # ╠═56395d02-19fd-4b9e-8f92-6e88aa4428c7
 # ╠═f27a727f-f80c-4dd2-bdef-63c7f3ca587f
 # ╠═2a801b3c-49a3-4aa7-be75-452711c4d4a0
+# ╠═bde3742d-134a-46ba-867a-5f14603c3135
+# ╠═68ca1190-aa39-4b0c-a3bb-1e10adc90d4c
 # ╟─20193589-4189-4347-ac5d-0e4370152ce6
 # ╠═011d1b7c-4535-47ad-a42c-4affa41f4588
 # ╠═7cb8658f-9a03-4807-8e18-3775b3f675aa
-# ╟─4ac90089-eee4-4ce3-a2e8-0152877f4414
+# ╠═4ac90089-eee4-4ce3-a2e8-0152877f4414
+# ╠═d3ec3715-f7de-4761-8215-e6d0a5f7a1b4
+# ╠═7fe1653b-edce-467b-ba80-79b8a3fa7c91
 # ╟─5309e3a3-ab35-4cc4-88cc-119813ab62a5
 # ╟─e3ad5cc3-4843-4d80-a0ba-99278ca335be
 # ╠═590a6c46-c9ee-4976-afdb-e873bd0af809
@@ -1803,6 +1913,8 @@ version = "1.4.1+1"
 # ╠═a8a6e77e-1d13-4214-8927-0c6f1d1af222
 # ╠═d129c3c0-9703-4fd6-9170-bda7b49e3f22
 # ╠═a563b1e3-3013-4059-a33c-90c97f5b07fc
+# ╠═55760f96-eb91-4de4-badd-1aae1550d6fa
+# ╠═2408bc23-49ae-4b50-9580-1f6548cc68c9
 # ╠═34a2be2a-1256-471b-a6e3-7234702e796d
 # ╠═4b3d6d84-07dc-4ccc-b26e-322946749c74
 # ╠═5050aadf-e39a-42aa-8640-6c0c2be826b3
