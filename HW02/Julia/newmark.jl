@@ -430,7 +430,7 @@ begin
 	# common input parameters for both task 3a & 3b
 	momentum = LinearMomentum(M,K,R) # linear momentum parameters
 	initial_coditions = InitialConditions(uₒ,vₒ) # initial conditions
-	runtime = RunTime(5.0,0.01) 
+	runtime = RunTime(5.0,0.01)  # 0.01
 	(;momentum,initial_coditions,runtime)
 end
 
@@ -634,7 +634,7 @@ function generalized_alpha_adaptive(moment::LinearMomentum,ic::InitialConditions
 
 	
 
-	# create time interval range to loop over later
+	# define the boundary for the adaptive newmark
 	ν₁ = boundary.ν₁
 	ν₂ = boundary.ν₂
 	ηₑ = boundary.ηₑ
@@ -652,7 +652,7 @@ function generalized_alpha_adaptive(moment::LinearMomentum,ic::InitialConditions
 	t_current = tₒ # current time
 	tf = time.tf # final time we want to solve for
 	Δtₒ = time.Δt # initial time step
-	t = [tₒ] # container for current time values
+	t = [t_current] # container for current time values
 	tstep = [Δtₒ] # container for the evolution of time steps
 	Δt = Δtₒ # current time step 
 
@@ -665,44 +665,46 @@ function generalized_alpha_adaptive(moment::LinearMomentum,ic::InitialConditions
 	e_abs = [0.0] # absolute error
 	η = [0.0] # relative error
 	e_cum = [0.0] # cummulative error
+
+	# counter for the number of iterations.
+	i = 1
+	
 	while t_current <= tf
 		
 		K_eff = M * ((1-α_m)/(β*Δt^2)) + C * (γ * (1 - α_f))/(β*Δt) + K * (1 - α_f)
 
-		uₙ = u[:,end] # current displacement
-		udₙ = ud[:,end] # current velocity
-		uddₙ = udd[:,end] # current acceleration
 		
-		r_eff = -K * α_f * uₙ + 
-				C * (((γ * (1-α_f))/(β*Δt)) * uₙ + ((γ - γ*α_f - β)/(β)) * udₙ + (((γ-2*β)*(1-α_f))/(2*β)) * Δt*uddₙ) +
-				M * (((1-α_m)/(β*Δt^2))*uₙ + ((1-α_m)/(β*Δt))* udₙ + ((1-α_m - 2 *β)/(2*β)) * uddₙ)
+		r_eff = -K * α_f * u[:,i] + 
+				C * (((γ * (1-α_f))/(β*Δt)) * u[:,i] + ((γ - γ*α_f - β)/(β)) * ud[:,i] + (((γ-2*β)*(1-α_f))/(2*β)) * Δt*udd[:,i]) +
+				M * (((1-α_m)/(β*Δt^2))*u[:,i] + ((1-α_m)/(β*Δt))* ud[:,i] + ((1-α_m - 2 *β)/(2*β)) * udd[:,i])
 
 		# solve for u.
 		uₙ₁ = K_eff \ r_eff # u_{n+1} next displcement
 		u = hcat(u, uₙ₁) 
 
 		# update velocity and acceleration
-		udₙ₁ = ((γ)/(β*Δt)) * (uₙ₁ - uₙ) - ((γ - β)/(β))*udₙ - ((γ - 2*β)/(2*β)) * Δt * uddₙ
+		udₙ₁ = ((γ)/(β*Δt)) * (u[:,i+1] - u[:,i]) - ((γ - β)/(β))*ud[:,i] - ((γ- 2*β)/(2*β)) * Δt * udd[:,i]
 		ud = hcat(ud,udₙ₁) 
 
-		uddₙ₁ = (1/(β*Δt^2))*(uₙ₁ - uₙ) - (1/(β*Δt)) * udₙ - ((1-2*β)/(2*β)) * uddₙ
+		uddₙ₁ = (1/(β*Δt^2))*(u[:,i+1] - u[:,i]) - (1/(β*Δt)) * ud[:,i] - ((1-2*β)/(2*β)) * udd[:,i]
 		udd = hcat(udd,uddₙ₁)
 
 		# calculate errors 
-			e_absₙ₁ = norm(((6*β - 1)/(6))*(uddₙ₁ - uddₙ) * Δt^2)
-			push!(e_abs,e_absₙ₁)
-		ηₙ₁ = e_absₙ₁ / norm(uₙ₁ - uₙ)
+		e_absₙ₁ = norm(((6*β - 1)/(6))*(udd[:,i+1] - udd[:,i]) * Δt^2)
+		push!(e_abs,e_absₙ₁)
+		ηₙ₁ = e_abs[i+1] / norm(u[:,i+1] - u[:,i])
 		push!(η,ηₙ₁)
 		push!(e_cum, sum(e_abs))
 
 		# adapting the time step
 		if ηₙ₁  > ub || ηₙ₁ < lb 
-			# here means Δt is either to big () 
+			# here means Δt is either to small or to big 
 			Δt = Δt * sqrt(ηₑ/ηₙ₁)
 		end
 		t_current += Δt
 		push!(t,t_current)
 		push!(tstep,Δt)
+		i+=1
 		
 	end
 
@@ -724,8 +726,8 @@ time_bound = AdaptiveTimeBoundary(1.0,10.0,1e-3)
 # ╔═╡ a8a6e77e-1d13-4214-8927-0c6f1d1af222
 ad_resp , ad_err,ad_time = generalized_alpha_adaptive(momentum,initial_coditions,runtime,physical_damping_a,numerical_damping_a,time_bound)
 
-# ╔═╡ d129c3c0-9703-4fd6-9170-bda7b49e3f22
-ad_err.η[20]
+# ╔═╡ 1e4eb24a-210e-4596-b895-a2699b71bcfd
+ad_resp.u
 
 # ╔═╡ a563b1e3-3013-4059-a33c-90c97f5b07fc
 begin
@@ -761,9 +763,38 @@ begin
 	plot(ad_time.times,ad_err.e_cum,title="Cumulative Error (Adaptive)",xlabel=L"t",ylabel=L"e_{cm}",label=L"$e_{cm}$")
 end
 
+# ╔═╡ faae5089-fd11-4b6c-8975-8868b83a2b52
+md""" ##### Comparing results:
+
+"""
+
+# ╔═╡ 8b4aaccd-ffbe-457f-a0bd-845aeb0c6281
+begin
+	plot(time_a.times,resp_a.u[1,:],title="Displacement response comparison \n (Task 3a vs adaptive)",xlabel=L"time",ylabel=L"displacement",label=L"\theta_{3a}")
+	plot!(time_a.times,resp_a.u[2,:],label=L"u_{3a}")
+	plot!(ad_time.times,ad_resp.u[1,:],label=L"$\theta_{adpat}$",linestyle=:dash)
+	plot!(ad_time.times,ad_resp.u[2,:],label=L"u_{adapt}",linestyle=:dash)
+end
+
+# ╔═╡ 127cdc2b-e22a-4066-b66b-dff702f13571
+begin
+	plot(time_a.times,resp_a.ud[1,:],title="Velocity response comparison \n (Task 3a vs adaptive)",xlabel=L"time",ylabel=L"velocity",label=L"\dot{\theta}_{3a}")
+	plot!(time_a.times,resp_a.ud[2,:],label=L"\dot{u}_{3a}")
+	plot!(ad_time.times,ad_resp.ud[1,:],label=L"\dot{\theta}_{adpat}",linestyle=:dash)
+	plot!(ad_time.times,ad_resp.ud[2,:],label=L"\dot{u}_{adapt}",linestyle=:dash)
+end
+
+# ╔═╡ ffc0ed14-1250-4c60-b26c-b50e8da9acb9
+begin
+	plot(time_a.times,resp_a.ud[1,:],title="Acceleration response comparison \n (Task 3a vs adaptive)",xlabel=L"time",ylabel=L"acceleration",label=L"\ddot{\theta}_{3a}")
+	plot!(time_a.times,resp_a.ud[2,:],label=L"\ddot{u}_{3a}")
+	plot!(ad_time.times,ad_resp.ud[1,:],label=L"\ddot{\theta}_{adpat}",linestyle=:dash)
+	plot!(ad_time.times,ad_resp.ud[2,:],label=L"\ddot{u}_{adapt}",linestyle=:dash)
+end
+
 # ╔═╡ 1cdbbff5-6d98-4b64-9a16-a4828daf05e8
 begin
-	plot(ad_time.times,ad_time.steps,title="Time step evolution (adaptive)",xlabel=L"time",ylabel=L"Δt",label=L"$Δt_{adaptive}$")
+	plot(ad_time.times,ad_time.steps,title="Time step evolution (Task 3a vs adaptive)",xlabel=L"time",ylabel=L"Δt",label=L"$Δt_{adaptive}$")
 	plot!(time_a.times,time_a.steps,label=L"Δt_{3a}")
 end
 
@@ -779,12 +810,12 @@ md""" ##### Cumulative error after $5$ s:
 """
 
 # ╔═╡ 3a8dabac-cfdd-49f1-a929-ad6899800bb0
-(adapt = ad_err.e_cum[end],t3a =err_a.e_cum[end] )
+(adapt_cum_err = ad_err.e_cum[end],t3a_cum_error =err_a.e_cum[end] )
 
 # ╔═╡ 39d90f92-47dd-4046-8f99-1148d11381c1
 md"""
 !!! note
-	From the previous result, we can observe that the cumulative error in the adaptive method is less than the fixed one and this was anticipated.
+	From the previous result, we can observe that the cumulative error (i.e. ~0.051) in the adaptive method is less than the fixed one (~0.114) and this was anticipated.
 """
 
 # ╔═╡ 7a2e7714-ec5f-4ed5-8fd9-8061cce04678
@@ -793,7 +824,7 @@ md""" ##### Number of steps:
 """
 
 # ╔═╡ e7c943c0-52eb-46a2-83ba-b2719458ab53
-(adapt = length(ad_time.steps),t3a = length(time_a.steps) )
+(adapt_steps = length(ad_time.steps),t3a_steps = length(time_a.steps) )
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1911,13 +1942,17 @@ version = "1.4.1+1"
 # ╟─0fdf106a-c40d-420d-a848-bf727fb49794
 # ╠═6c54aec1-0c49-4f3f-979c-7fbf964ee22f
 # ╠═a8a6e77e-1d13-4214-8927-0c6f1d1af222
-# ╠═d129c3c0-9703-4fd6-9170-bda7b49e3f22
+# ╠═1e4eb24a-210e-4596-b895-a2699b71bcfd
 # ╠═a563b1e3-3013-4059-a33c-90c97f5b07fc
 # ╠═55760f96-eb91-4de4-badd-1aae1550d6fa
 # ╠═2408bc23-49ae-4b50-9580-1f6548cc68c9
 # ╠═34a2be2a-1256-471b-a6e3-7234702e796d
 # ╠═4b3d6d84-07dc-4ccc-b26e-322946749c74
 # ╠═5050aadf-e39a-42aa-8640-6c0c2be826b3
+# ╟─faae5089-fd11-4b6c-8975-8868b83a2b52
+# ╠═8b4aaccd-ffbe-457f-a0bd-845aeb0c6281
+# ╠═127cdc2b-e22a-4066-b66b-dff702f13571
+# ╠═ffc0ed14-1250-4c60-b26c-b50e8da9acb9
 # ╠═1cdbbff5-6d98-4b64-9a16-a4828daf05e8
 # ╠═23aa93b5-949e-4418-bfe0-b9033ff91627
 # ╟─df7d4a60-cf6a-4a43-b2ec-dc795f2fdce0
